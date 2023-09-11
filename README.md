@@ -32,7 +32,7 @@ pipenv install
 # If you haven't already, then start a pipenv shell
 pipenv shell
 
-PYTHON_ENV=development python src/main.py
+python src/main.py PYTHON_ENV=development 
 ```
 
 Visit Swagger UI on [http://localhost:5000/api/swagger](http://localhost:5000/api/swagger).
