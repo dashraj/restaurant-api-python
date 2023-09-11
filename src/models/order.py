@@ -20,7 +20,6 @@ class Order:
         else:
             table = self.get_table(table_number)
             table.add_items(items)
-            # self.tables[table_number] = table
 
     def remove_table(self,table_number):
 

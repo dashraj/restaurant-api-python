@@ -5,7 +5,7 @@ from models.item import item, Item
 
 table = server.api.model("Table",{
     'table_id': fields.Integer(readOnly=True, description='Table ID'),
-    'items': fields.Raw #Nested(item, description='Items in the table'),
+    'items': fields.Raw
 })
 
 class Table:
@@ -26,6 +26,14 @@ class Table:
 
     def check_item(self, item_name):
         return self.items.get(item_name)
+    
+    def remove_items(self, item_names):
+        for item in item_names:
+            if item in self.items:
+                if self.items[item].quantity > 1 :
+                    self.items[item].quantity = self.items[item].quantity - 1
+                else:                
+                    self.remove_item(item)
 
     def remove_item(self, item_name):
         return self.items.pop(item_name, None)
