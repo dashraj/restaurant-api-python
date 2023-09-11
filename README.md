@@ -35,7 +35,7 @@ pipenv shell
 python src/main.py PYTHON_ENV=development 
 ```
 
-Visit Swagger UI on [http://localhost:5000/api/swagger](http://localhost:5000/api/swagger).
+Visit Swagger UI on [http://localhost:5000/swagger](http://localhost:5000/swagger).
 
 # Run unit tests
 
