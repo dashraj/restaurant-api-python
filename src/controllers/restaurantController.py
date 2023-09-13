@@ -83,6 +83,7 @@ class ItemController(Resource):
         """
         Add item to the table's order.
         """
+        print(f'{table_number} - {item_name}')
         restaurantOrders.add_table(table_number,[item_name])
         return {'message' : f'Item {item_name} added to the table {table_number}\'s order.'}
     
