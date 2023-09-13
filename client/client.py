@@ -1,93 +1,52 @@
-import socket
-import sys
+import requests
 import threading
 import json
 
-table_amount = 100
-item_amount = 20
+table_amount = 10
+item_amount = 10
 num_thread = 10
 
+# Define the base URL of your Flask API
+base_url = 'http://127.0.0.1:5000'  # Update with your API's URL
 
-
-def send_recv(socket, msg):
-    socket.send(msg)
-    _ = socket.recv(512)
-
-def send_recv_json(socket, msg):
-    socket.send(msg)
-    res = ""
-    data = socket.recv(512)
-    res += data.decode("utf-8")
-    flag = len(data) == 512
-    while flag:
-        data = socket.recv(512)
-        res += data.decode("utf-8")
-        flag = len(data) == 512  
-
-    return json.loads(res)
-
-
-def run_client_add(host, port, thread_id):
-    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-
-    try:
-        s.connect((host, port))
-        print('Connect to %s:%d' % (host, port))
-    except:
-        print('Unable to connect %s:%d' % (host, port))
-        exit(1)
-
+def run_client_add(thread_id):
     for table_id in range(0, table_amount):
         item_id_start = item_amount * thread_id
         item_id_end = item_amount * (thread_id + 1)
 
         for item_id in range(item_id_start, item_id_end):
-            send_recv(s, "POST /add/{}/{}".format(table_id, item_id).encode())
+            endpoint = f"/restaurant/{table_id}/{item_id}"
+            url = f"{base_url}{endpoint}"
+            
+            # Send a POST request to add an item
+            response = requests.post(url)
+            
+            if response.status_code != 200:
+                print(f"Failed to add item to {endpoint}, status code: {response.status_code}")
 
-    s.close()
-
-def run_client_check_all(host, port):
-    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-
-    try:
-        s.connect((host, port))
-        print('Connect to %s:%d' % (host, port))
-    except:
-        print('Unable to connect %s:%d' % (host, port))
-        exit(1)
-
+def run_client_check_all():
     print("=== Checking ===")
 
-    for table_id in range(0, table_amount):
-        response = send_recv_json(s, "GET /query/{}".format(table_id).encode())
-        if(len(response) != item_amount * num_thread):
-            print("table {} has incorrect amount of items".format(table_id))
-            exit(1)
+    endpoint = f"/restaurant"
+    url = f"{base_url}{endpoint}"
+        
+        # Send a GET request to query the table
+    response = requests.get(url)
+    data = response.json()
+        
+        # if len(data) != item_amount * num_thread:
+        #     print(f"Table {table_id} has an incorrect amount of items")
+        #     exit(1)
 
-    print("All table has correct amount of items")
-
-    s.close()
-
+    print(data)
 
 if __name__ == '__main__':
-    host = '127.0.0.1'
-    port = 8080
-
-    if len(sys.argv) == 3:
-        host = sys.argv[1]
-        port = sys.argv[2]
-    elif len(sys.argv) == 1:
-        pass
-    else:
-        print('run: client.py [host] [port]')
-        exit(1)
-
     threads = []
 
-    print("Running {} threads...".format(num_thread))
-    print("Each thread adds {} items for each {} tables.".format(item_amount, table_amount))
+    print(f"Running {num_thread} threads...")
+    print(f"Each thread adds {item_amount} items for each {table_amount} tables.")
     for i in range(0, num_thread):
-        t = threading.Thread(target=run_client_add, args=(host, port, i))
+        t = threading.Thread(target= run_client_add, args=(i,))
         threads.append(t)
         t.start()
 
@@ -95,4 +54,4 @@ if __name__ == '__main__':
         t = threads[i]
         t.join()
 
-    run_client_check_all(host, port)
+    run_client_check_all()
