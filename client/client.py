@@ -6,8 +6,7 @@ table_amount = 10
 item_amount = 10
 num_thread = 10
 
-# Define the base URL of your Flask API
-base_url = 'http://127.0.0.1:5000'  # Update with your API's URL
+base_url = 'http://127.0.0.1:5000'
 
 def run_client_add(thread_id):
     for table_id in range(0, table_amount):
@@ -33,10 +32,6 @@ def run_client_check_all():
         # Send a GET request to query the table
     response = requests.get(url)
     data = response.json()
-        
-        # if len(data) != item_amount * num_thread:
-        #     print(f"Table {table_id} has an incorrect amount of items")
-        #     exit(1)
 
     print(data)
 

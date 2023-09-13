@@ -61,6 +61,14 @@ python client/client.py
 
 Visit Swagger UI on [http://localhost:5000/swagger](http://localhost:5000/swagger).
 
-## License
+### To do integration test for the Api's
 
-MIT
+```bash
+pip install pytest
+pip install requests
+
+```
+python tests/test_restauranapi.py
+```
+It runs all the test cases of Api 
+
