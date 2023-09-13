@@ -10,18 +10,19 @@ num_thread = 10
 
 
 def send_recv(socket, msg):
-    socket.send(msg)
+    socket.sendall(msg)
     _ = socket.recv(512)
+    print(_)
 
 def send_recv_json(socket, msg):
-    socket.send(msg)
+    socket.sendall(msg)
     res = ""
     data = socket.recv(512)
-    res += data.decode("utf-8")
+    res += data.decode()
     flag = len(data) == 512
     while flag:
         data = socket.recv(512)
-        res += data.decode("utf-8")
+        res += data.decode()
         flag = len(data) == 512  
 
     return json.loads(res)
@@ -40,9 +41,15 @@ def run_client_add(host, port, thread_id):
     for table_id in range(0, table_amount):
         item_id_start = item_amount * thread_id
         item_id_end = item_amount * (thread_id + 1)
-
         for item_id in range(item_id_start, item_id_end):
-            send_recv(s, "POST /add/{}/{}".format(table_id, item_id).encode())
+            try:
+                request = f'POST /restaurant/{table_id}/item_{item_id} HTTP/1.1\r\nHost: {host}:{port}\r\n\r\n'
+                request += 'Content-Length: 0\r\n\r\n'
+                send_recv(s, request.encode())
+                
+            except Exception as e:
+                print(e)
+
 
     s.close()
 
@@ -59,7 +66,8 @@ def run_client_check_all(host, port):
     print("=== Checking ===")
 
     for table_id in range(0, table_amount):
-        response = send_recv_json(s, "GET /query/{}".format(table_id).encode())
+        request = f'GET /restaurant/{table_id} HTTP/1.1\r\nHost: {host}:{port}\r\n\r\n'
+        response = send_recv_json(s, request.encode())
         if(len(response) != item_amount * num_thread):
             print("table {} has incorrect amount of items".format(table_id))
             exit(1)
@@ -71,7 +79,7 @@ def run_client_check_all(host, port):
 
 if __name__ == '__main__':
     host = '127.0.0.1'
-    port = 8080
+    port = 5000
 
     if len(sys.argv) == 3:
         host = sys.argv[1]
@@ -79,7 +87,7 @@ if __name__ == '__main__':
     elif len(sys.argv) == 1:
         pass
     else:
-        print('run: client.py [host] [port]')
+        print('run: client.py c[host] [port]')
         exit(1)
 
     threads = []
